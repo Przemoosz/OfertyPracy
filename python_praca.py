@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 def main():
     try:
         # Pobranie tekstu HTML ze strony Pracuj.pl
-        html_text = requests.get("https://www.praca.pl/s-elektryk,poznan.html?p=elektryk&m=Pozna%C5%84%2C").text
+        html_text = requests.get("https://www.praca.pl/s-programista,python,poznan.html?p=Programista+Python&m=Pozna%C5%84%2C+").text
+        # https://www.praca.pl/s-programista,python,poznan_2.html?p=Programista+Python&m=Pozna%C5%84%2C+
         #"https://www.praca.pl/s-programista,python,poznan.html?p=Programista+Python&m=Pozna%C5%84%2C+"
     except Exception:
         exit("Do not received 200 OK from page")
@@ -23,7 +24,10 @@ def main():
         else:
             name = job.find('button', class_="listing__offer-title job-id listing__region-toggler").text
         if job.find('a', class_="listing__info listing__info--name") == None:
-            company = None
+            if job.find('a', class_="listing__info listing__info--name listing__info--link") != None:
+                company = job.find('a', class_="listing__info listing__info--name listing__info--link").text
+            else:
+                company = None
         else:
             company = job.find('a', class_="listing__info listing__info--name").text
         if job.find('div', class_="listing__tab listing__tab--job-level") == None:
