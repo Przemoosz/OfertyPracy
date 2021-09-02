@@ -82,9 +82,33 @@ def olx_scrap():
         print(name.text.strip(),wymagania.text.strip(),link,sep=" ")
         #print(jobs)
         save(name.text.strip(), wymagania.text.strip(), link)
-
-
-
+def pracuj_pl_scrap():
+    try:
+        url = "https://www.pracuj.pl/praca/programista%20python;kw/poznan;wp?rd=50"
+        html_file = requests.get(url).text
+    except Exception:
+        print()
+        print("Do not received 200 OK from page")
+        return False
+    soup = BeautifulSoup(html_file,'lxml')
+    for job in soup.find_all('li',class_="results__list-container-item"):
+        if job.find('h2') == None:
+            return None
+        else:
+            name = job.find('h2').text.strip()
+        company = job.find('span',class_="offer-company__wrapper").text.strip()
+        #link = job.find('a',class_="offer-details__title-link",href=True).attr['href'
+        link = job.find('a', href=True).attrs['href']
+        #wymagania = job.find('div',class_="offer-labels__wrapper")
+        #print(wymagania)
+        #wymagania = wymagania_p.find('li',class_="offer-labels__item").text.strip()
+        #link = None
+        # print(f"Nazwa: {name}\n"
+        #     f"Pracodowaca: {company}\n"
+        #     f"Link: {link}\n")
+        save(name=name,wymagania=None,link=link,company=company)
+        if "staż" in name or "praktykant" in name or "praktyka" in name:
+            save_staz(name=name,wymagania=None,link=link,company=company)
 
 
 
@@ -96,14 +120,30 @@ def save(name,wymagania,link,company=None):
         file.write("Wymiar pracy: {name}\n".format(name=wymagania))
         file.write("Link: {name}\n".format(name=link))
         file.write("\n")
+        if wymagania == None or wymagania == str(None):
+            return None
+        if "staż" in wymagania or "praktykant" in wymagania or "praktyka" in wymagania:
+            save_staz(name,wymagania,link,company)
+def save_staz(name,wymagania,link,company=None):
+    file_name = str(datetime.date.today()) +"_staż"+ ".txt"
+    with open(file_name,'a',encoding="UTF_8") as file:
+        file.write("Name: {name}\n".format(name=name))
+        file.write("Company: {name}\n".format(name=company))
+        file.write("Wymiar pracy: {name}\n".format(name=wymagania))
+        file.write("Link: {name}\n".format(name=link))
+        file.write("\n")
 def first_open():
     file_name = str(datetime.date.today()) + ".txt"
     with open(file_name,'w') as file:
+        pass
+    file_name = str(datetime.date.today()) +"_staż"+ ".txt"
+    with open(file_name, 'w') as file:
         pass
 def main():
     first_open()
     praca_pl_scrap()
     olx_scrap()
+    pracuj_pl_scrap()
     print(datetime.date.today())
     pass
 
